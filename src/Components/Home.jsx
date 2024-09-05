@@ -2,7 +2,6 @@ import React from 'react';
 
 export default function Home() {
   return (
-    <div class=" flex flex-col">
       <div class="flex w-[1424px] ml-5">
         <div class="flex-grow flex flex-col mr-4">
           <div class="flex items-center bg-[#86B8D4] p-2 rounded-t-2xl relative m-4 h-[80px]">
@@ -44,6 +43,5 @@ export default function Home() {
           </div>
         </div>
       </div>
-    </div>
   );
 }
