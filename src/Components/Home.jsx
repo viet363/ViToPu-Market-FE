@@ -8,7 +8,6 @@ export default function Home() {
             <input
               type="text"
               class="w-[400px]  p-2 border rounded-xl pl-12"
-              placeholder="Tìm kiếm"
             />
             <button class="absolute flex items-center pl-3">
               <img src="./image/magnifying-glass-solid.svg" alt="Search icon" class="w-6 h-6" />
