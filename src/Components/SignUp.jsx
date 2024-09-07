@@ -70,7 +70,7 @@ export default function SignUp() {
           </div>
         </div>
         <div class="text-center  w-[150px] mt-5  ">
-          <button type="submit" className="w-full bg-[#458FFF] text-white font-semibold py-2 rounded-3xl ">
+          <button type="submit" class="w-full bg-[#458FFF] text-white font-semibold py-2 rounded-3xl ">
             Xác nhận
           </button>
         </div>
