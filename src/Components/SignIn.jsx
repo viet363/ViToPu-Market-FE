@@ -5,7 +5,7 @@ export default function SignIn() {
     <div class=" bg-cover bg-center  flex items-center justify-center mt-[150px]">
       <div>
         <div class="bg-black bg-opacity-30 p-6 rounded-3xl w-[500px] items-center">
-          <h2 class="text-white font-bold text-center text-2xl mb-6">ĐĂNG NHẬP</h2>
+          <h2 class="text-white font-bold text-center text-2xl ">ĐĂNG NHẬP</h2>
           <div class="border-t-8 border-[#FFFFFF] mb-8 rounded-full w-[255px] mx-auto"></div>
           <form class="flex flex-col items-center">
             <div class="mb-4 ">
@@ -32,7 +32,7 @@ export default function SignIn() {
             </div>
           </form>
         </div>
-        <div class="text-center mt-4">
+        <div class="text-center mt-16">
           <a href="Signup" class="w-[350px] p-3 bg-[#7CD0FF] text-center rounded-3xl ">
             Đăng ký nếu chưa có tài khoản
           </a>
