@@ -13,7 +13,7 @@ export default function Home() {
           </button>
         </div>
         <div class="bg-white bg-opacity-30 flex items-center justify-center">
-        <div class="grid-container grid grid-cols-2 gap-5 w-[950px] h-[600px] mt-4 overflow-y-auto">
+        <div class="grid-container grid grid-cols-2 gap-5 w-[950px] h-[600px] mt-4 overflow-auto scrollbar-hidden ">
           {Array(20).fill(0).map((_, index) => (
             <div key={index} class="bg-white rounded-lg flex flex-col">
               <button class="bg-[#D9D9D9] h-32 mb-2 rounded-md text-center w-full flex justify-center items-center">Ảnh sản phẩm</button>
@@ -31,7 +31,7 @@ export default function Home() {
           <div class="h-full w-full mt-7 text-center text-white font-bold">Sản phẩm tích cực</div>
         </div>
         <div class="bg-white bg-opacity-30 flex items-center justify-center">
-        <div class="grid-container grid grid-cols-1 gap-[30px] h-[600px] w-[300px] mt-4 overflow-y-auto">
+        <div class="grid-container grid grid-cols-1 gap-[30px] h-[600px] w-[300px] mt-4 overflow-auto scrollbar-hidden ">
           {Array(3).fill(0).map((_, index) => (
             <div key={index} class="bg-white rounded-lg p-4">
               <button class="bg-[#D9D9D9] h-32 mb-2 rounded-md text-center w-full flex justify-center items-center">Ảnh sản phẩm</button>
