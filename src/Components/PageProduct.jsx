@@ -13,8 +13,8 @@ export default function PageProduct() {
       <div className="flex flex-row mt-6 mx-6">
         <button className="w-[704px] h-[386px] bg-[#D9D9D9]">Ảnh sản phẩm</button>
         <div className="basis-3/4 h-[490px] rounded-r-xl mt-5 mx-7 space-y-16">
-          <div className="flex flex-col justify-center">
-            <div className="text-[32px] rounded-3xl font-bold">Tên sản phẩm</div>
+          <div className="flex flex-col justify-center space-y-24">
+            <div className="text-[32px] rounded-3xl font-bold ">Tên sản phẩm</div>
             <div className="text-[32px] rounded-3xl text-[#FF7816] font-bold">100,000.00 đ</div>
           </div>
           <button type="submit" className="w-[125px] h-[90px] bg-[#458FFF] py-5 rounded-3xl">Mua</button>
