@@ -16,11 +16,6 @@ export default function Notification() {
             </div>
           ))}
         </div>
-        <div class="text-center mt-14">
-        <a href="/PageShop" class="w-[350px] p-3 bg-[#7CD0FF] text-center rounded-3xl">
-          Đăng nhập nếu đã có tài khoản
-        </a>
-      </div>
         </div>
     </div>
   )
