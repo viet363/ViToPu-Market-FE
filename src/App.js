@@ -13,7 +13,7 @@ import SignIn from "./Components/SignIn";
 const App = () => {
   const location = useLocation();
   return (
-    <div className="">
+    <div>
       <div className="relative z-0">
         <img
           className="fixed bottom-0"
@@ -21,13 +21,13 @@ const App = () => {
           alt="BackGround"
         ></img>
       </div>
-      <div className="absolute z-1 w-full">
+      <div className="absolute z-10 w-full">
         {location.pathname === "/SignIn" || location.pathname === "/SignUp" ? (
           <div></div>
         ) : (
           <OptionBar></OptionBar>
         )}
-        <div>
+        <div className="translate-y-[80px] z-0">
           <Routes>
             <Route path="/" element={<Home></Home>}></Route>
             <Route
