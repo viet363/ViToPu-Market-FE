@@ -1,10 +1,14 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
+import axios from "axios";
 
 export default function Home() {
   const widthScreen = window.innerWidth;
   const [scrollPage, setScrollPage] = useState(0);
   const [products, setProducts] = useState([]);
+  const [listID, setListID] = useState([]);
+  const [numberProduct, setNumberProduct] = useState(0);
+  const scrollProduct = useRef(null);
 
   const ChangeFirstScroll = () => {
     if (scrollPage === 0) {
@@ -29,23 +33,61 @@ export default function Home() {
     return () => clearInterval(interval);
   }, [scrollPage]);
 
-  const AddElement = (Number) => {
+  const AddElement = async (Number) => {
     const ProductList = [];
-    for (let i = 1; i <= Number; i++) {
-      ProductList.push({
-        ImageP:
-          "https://images.pexels.com/photos/298863/pexels-photo-298863.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1",
-        NameP: "Ten san pham",
-        PriceP: 100000,
-        IdP: "SP001",
-      });
+    const promises = [];
+
+    for (let i = Number; i < Number + 3; i++) {
+      if (listID.length - 1 < i) {
+        break;
+      }
+      promises.push(
+        axios
+          .post("http://localhost:9000/SanPham/Detail", {
+            maSanPham: listID[i].maSanPham,
+          })
+          .then((rs) => {
+            ProductList.push({
+              ImageP: rs.data.ImageValue,
+              TypeImage: rs.data.LoaiAnh,
+              NameP: rs.data.tenSanPham,
+              PriceP: rs.data.giaTien,
+              IdP: rs.data.maSanPham,
+            });
+          })
+      );
     }
-    setProducts(...products, ProductList);
+
+    await Promise.all(promises);
+    setProducts((prevProducts) => [...prevProducts, ...ProductList]);
+  };
+
+  const handleScroll = () => {
+    const scrollDiv = scrollProduct.current;
+    if (
+      scrollDiv.scrollTop + scrollDiv.clientHeight >=
+      scrollDiv.scrollHeight
+    ) {
+      setNumberProduct(numberProduct + 4);
+    }
   };
 
   useEffect(() => {
-    AddElement(10);
+    const scrollDiv = scrollProduct.current;
+    scrollDiv.addEventListener("scroll", handleScroll);
+    axios.post("http://localhost:9000/SanPham/ListID").then((rs) => {
+      setListID(rs.data);
+    });
+    return () => {
+      scrollDiv.removeEventListener("scroll", handleScroll);
+    };
   }, []);
+
+  useEffect(() => {
+    if (listID.length - 1 > numberProduct) {
+      AddElement(numberProduct);
+    }
+  }, [numberProduct, listID]);
 
   return (
     <div className="flex flex-col overflow-hidden">
@@ -124,13 +166,24 @@ export default function Home() {
             placeholder="Tìm kiếm..."
           ></input>
         </div>
-        <div className="grid grid-cols-4 w-full p-7 h-full overflow-auto bg-white gap-[30px]">
+        <div
+          className="grid grid-cols-4 w-full p-7 h-full overflow-auto bg-white gap-[30px]"
+          ref={scrollProduct}
+        >
           {products.map((p) => (
-            <div className=" ">
+            <div>
               <button className="flex flex-col duration-200 w-[450px] ease-linear hover:text-[rgba(83,165,185,1)] hover:shadow-2xl">
                 <div className="relative overflow-hidden w-[450px] h-[300px]">
-                  <div className="absolute flex justify-center items-center">
-                    <div><img src={p.ImageP} alt={p.IdP}></img></div>
+                  <div className="absolute flex w-full h-full justify-center items-center">
+                    <div>
+                      <img
+                        className="h-[300px] w-[450px]"
+                        src={
+                          "data:image/" + p.TypeImage + ";base64," + p.ImageP
+                        }
+                        alt={p.IdP}
+                      ></img>
+                    </div>
                   </div>
                 </div>
                 <div className="p-2">
