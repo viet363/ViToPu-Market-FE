@@ -4,7 +4,7 @@ export default function Notification() {
   return (
     <div class="flex items-center justify-center">
       <div class=" w-[1800px] h-[750px] mt-4 rounded-3xl bg-gray-100 bg-opacity-30 ">
-      <div class="grid-container grid grid-cols-1 gap-5 p-6 overflow-auto scrollbar-hidden  h-[650px] ">
+      <div class="grid-container grid grid-cols-1 gap-5 p-6 overflow-auto   h-[650px] ">
           {Array(10).fill(0).map((_, index) => (
             <div key={index} class="flex items-center justify-between bg-white rounded-2xl ">
               <div class="flex items-center h-[80px]">

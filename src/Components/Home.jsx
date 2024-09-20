@@ -1,5 +1,7 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import React, { useState, useEffect, useRef } from "react";
+import { LazyLoadImage } from "react-lazy-load-image-component";
+import "react-lazy-load-image-component/src/effects/blur.css";
 import axios from "axios";
 
 export default function Home() {
@@ -7,8 +9,29 @@ export default function Home() {
   const [scrollPage, setScrollPage] = useState(0);
   const [products, setProducts] = useState([]);
   const [listID, setListID] = useState([]);
-  const [numberProduct, setNumberProduct] = useState(0);
+  const [listIDSearch, setListIDSearch] = useState([]);
+  const [valueSearch, setvalueSearch] = useState("");
   const scrollProduct = useRef(null);
+
+  const debounce = (func, delay) => {
+    let timeout;
+    return (...args) => {
+      clearTimeout(timeout);
+      timeout = setTimeout(() => {
+        func(...args);
+      }, delay);
+    };
+  };
+
+  const debounceChange = useRef(
+    debounce((value) => {
+      setvalueSearch(value);
+    }, 1000)
+  );
+
+  const ChangeInputSearch = (e) => {
+    debounceChange.current(e.target.value);
+  };
 
   const ChangeFirstScroll = () => {
     if (scrollPage === 0) {
@@ -33,18 +56,14 @@ export default function Home() {
     return () => clearInterval(interval);
   }, [scrollPage]);
 
-  const AddElement = async (Number) => {
+  const AddElement = async (Array) => {
     const ProductList = [];
     const promises = [];
-
-    for (let i = Number; i < Number + 3; i++) {
-      if (listID.length - 1 < i) {
-        break;
-      }
+    for (let i = 0; i < Array.length; i++) {
       promises.push(
         axios
           .post("http://localhost:9000/SanPham/Detail", {
-            maSanPham: listID[i].maSanPham,
+            maSanPham: Array[i].maSanPham,
           })
           .then((rs) => {
             ProductList.push({
@@ -57,40 +76,68 @@ export default function Home() {
           })
       );
     }
-
     await Promise.all(promises);
-    setProducts((prevProducts) => [...prevProducts, ...ProductList]);
+    setProducts([...ProductList]);
   };
 
-  const handleScroll = () => {
-    const scrollDiv = scrollProduct.current;
-    if (
-      scrollDiv.scrollTop + scrollDiv.clientHeight >=
-      scrollDiv.scrollHeight
-    ) {
-      setNumberProduct(numberProduct + 4);
-    }
-  };
-
-  useEffect(() => {
-    const scrollDiv = scrollProduct.current;
-    scrollDiv.addEventListener("scroll", handleScroll);
+  const TakeList = () => {
     axios.post("http://localhost:9000/SanPham/ListID").then((rs) => {
       setListID(rs.data);
     });
-    return () => {
-      scrollDiv.removeEventListener("scroll", handleScroll);
-    };
-  }, []);
+  };
+
+  const TakeListSearch = () => {
+    axios
+      .post("http://localhost:9000/SanPham/Search", { Search: valueSearch })
+      .then((rs) => {
+        setListIDSearch(rs.data);
+      })
+      .catch((err) => {
+        setProducts([]);
+      });
+  };
 
   useEffect(() => {
-    if (listID.length - 1 > numberProduct) {
-      AddElement(numberProduct);
+    if (listID.length >= 0) {
+      AddElement(listID);
     }
-  }, [numberProduct, listID]);
+  }, [listID]);
+
+  useEffect(() => {
+    if (listIDSearch.length >= 0) {
+      AddElement(listIDSearch);
+    }
+  }, [listIDSearch]);
+
+  useEffect(() => {
+    if (valueSearch) {
+      TakeListSearch();
+    } else {
+      AddElement(listID);
+    }
+  }, [valueSearch]);
+
+  useEffect(() => {
+    TakeList();
+  }, []);
 
   return (
     <div className="flex flex-col overflow-hidden">
+      <div className="flex items-center justify-center w-full h-[500px] bg-gradient-sky">
+        <div className="text-center flex flex-col gap-5">
+          <div>
+            <p className="text-[70px] font-extrabold text-white">VITOPU</p>
+          </div>
+          <div className="h-2 w-full bg-white rounded-3xl"></div>
+          <div>
+            <p className="tetx-[45px] font-extrabold text-white">
+              Nơi sẵn sàng bán rẻ mọi thứ cho bạn
+              <br />
+              Hãy tham gia mua sắm
+            </p>
+          </div>
+        </div>
+      </div>
       <div
         className={"flex justify-center items-center duration-300 ease-in"}
         style={{
@@ -111,7 +158,7 @@ export default function Home() {
           style={{ width: widthScreen + "px" }}
         ></div>
       </div>
-      <div className="absolute flex justify-between items-center w-full h-[700px]">
+      <div className="absolute flex justify-between items-center w-full h-[700px] translate-y-[500px]">
         <div>
           <button className="ml-[50px]" onClick={ChangeFirstScroll}>
             <svg
@@ -162,47 +209,68 @@ export default function Home() {
         </div>
         <div className="py-5">
           <input
-            className="w-[500px] pl-[60px] py-2 outline-none"
+            className="w-[500px] p-2 outline-none"
             placeholder="Tìm kiếm..."
+            onChange={ChangeInputSearch}
           ></input>
         </div>
-        <div
-          className="grid grid-cols-4 w-full p-7 h-full overflow-auto bg-white gap-[30px]"
-          ref={scrollProduct}
-        >
-          {products.map((p) => (
+        {products.length === 0 ? (
+          <div className="flex flex-col gap-10 justify-center items-center w-full h-full">
             <div>
-              <button className="flex flex-col duration-200 w-[450px] ease-linear hover:text-[rgba(83,165,185,1)] hover:shadow-2xl">
-                <div className="relative overflow-hidden w-[450px] h-[300px]">
-                  <div className="absolute flex w-full h-full justify-center items-center">
-                    <div>
-                      <img
-                        className="h-[300px] w-[450px]"
-                        src={
-                          "data:image/" + p.TypeImage + ";base64," + p.ImageP
-                        }
-                        alt={p.IdP}
-                      ></img>
+              <svg
+                className="w-[100px] font-extrabold opacity-70"
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 576 512"
+              >
+                <path d="M0 24C0 10.7 10.7 0 24 0L69.5 0c22 0 41.5 12.8 50.6 32l411 0c26.3 0 45.5 25 38.6 50.4l-41 152.3c-8.5 31.4-37 53.3-69.5 53.3l-288.5 0 5.4 28.5c2.2 11.3 12.1 19.5 23.6 19.5L488 336c13.3 0 24 10.7 24 24s-10.7 24-24 24l-288.3 0c-34.6 0-64.3-24.6-70.7-58.5L77.4 54.5c-.7-3.8-4-6.5-7.9-6.5L24 48C10.7 48 0 37.3 0 24zM128 464a48 48 0 1 1 96 0 48 48 0 1 1 -96 0zm336-48a48 48 0 1 1 0 96 48 48 0 1 1 0-96z" />
+              </svg>
+            </div>
+            <div>
+              <p className="text-[40px] font-extrabold opacity-70">
+                Không có sản phẩm
+              </p>
+            </div>
+          </div>
+        ) : (
+          <div
+            className="grid grid-cols-4 w-full p-7 h-full overflow-auto bg-white gap-[30px]"
+            ref={scrollProduct}
+          >
+            {products.map((p) => (
+              <div>
+                <button className="flex flex-col duration-200 w-[450px] ease-linear hover:text-[rgba(83,165,185,1)] hover:shadow-2xl">
+                  <div className="relative overflow-hidden w-[450px] h-[300px]">
+                    <div className="absolute flex w-full h-full justify-center items-center">
+                      <div>
+                        <LazyLoadImage
+                          className="h-[300px] w-[450px]"
+                          effect="blur"
+                          src={
+                            "data:image/" + p.TypeImage + ";base64," + p.ImageP
+                          }
+                          alt={p.IdP}
+                        ></LazyLoadImage>
+                      </div>
                     </div>
                   </div>
-                </div>
-                <div className="p-2">
-                  <p>{p.NameP}</p>
-                </div>
-                <div className="flex justify-between items-center w-full px-2 pb-2">
-                  <div>
-                    <p>{p.PriceP} VND</p>
+                  <div className="p-2">
+                    <p>{p.NameP}</p>
                   </div>
-                  <div>
-                    <button className="bg-[rgba(83,165,185,1)] text-white p-2 border-[rgba(83,165,185,1)] border-[2px] duration-200 ease-linear hover:bg-white hover:text-[rgba(83,165,185,1)]">
-                      Thêm
-                    </button>
+                  <div className="flex justify-between items-center w-full px-2 pb-2">
+                    <div>
+                      <p>{Intl.NumberFormat().format(p.PriceP)} VND</p>
+                    </div>
+                    <div>
+                      <button className="bg-[rgba(83,165,185,1)] text-white p-2 border-[rgba(83,165,185,1)] border-[2px] duration-200 ease-linear hover:bg-white hover:text-[rgba(83,165,185,1)]">
+                        Thêm
+                      </button>
+                    </div>
                   </div>
-                </div>
-              </button>
-            </div>
-          ))}
-        </div>
+                </button>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );
