@@ -2,15 +2,16 @@ import React from 'react';
 
 export default function SignUp() {
   return (
-    <div class="flex flex-col items-center justify-center min-h-screen bg-cover bg-center" >
-      <div class="bg-[#253133] bg-opacity-70 rounded-lg p-8 w-[1150px] h-[700px] flex flex-col justify-center items-center">
+    <form action=''> 
+    <div class="flex flex-col items-center justify-center min-h-screen bg-cover bg-center  " >
+      <div class="bg-[#253133] bg-opacity-70 rounded-lg p-8 w-[1150px] h-[700px] flex flex-col justify-center items-center ">
         <div class="text-center mb-8 ">
           <h2 class="text-2xl font-bold text-center  text-white">ĐĂNG KÝ</h2>
           <div class="border-t-8 mt-3 border-[#e5e5e5] rounded-full w-[255px]"></div>
         </div>
-        <div class="flex w-full justify-center items-center ml-20">
+        <div class="flex w-full justify-center items-center ">
           {/* Ảnh đại diện */}
-          <div class="w-1/3 flex flex-col items-center">
+          <div class="w-1/2 flex flex-col items-center">
             <div class="relative mb-8">
               <button class="bg-gray-200 rounded-full flex items-center justify-center w-[300px] h-[300px]">
                 <svg xmlns="http://www.w3.org/2000/svg" class="w-[220px] h-[220px] text-gray-500" viewBox="0 0 512 512" fill="currentColor">
@@ -26,10 +27,9 @@ export default function SignUp() {
               </div>
             </div>
           </div>
-          <div class="w-[10px] h-[500px] bg-[#00D1FF] rounded-full ml-24 "></div>
+          <div class="  w-[10px] h-[500px] bg-[#00D1FF] rounded-full"></div>
           {/* Form đăng ký */}
-          <div class="w-1/2">
-            <form class="space-y-4 flex-col w-[450px] ml-20 ">
+          <div class="w-1/2 ml-5 space-y-4">
               <div>
                 <input type="text" placeholder="Họ và tên" class="mt-1 w-full border border-gray-300 rounded-2xl p-2" />
               </div>
@@ -70,7 +70,6 @@ export default function SignUp() {
                   </span>
                 </label>
               </div>
-            </form>
           </div>
         </div>
         <div class="text-center  w-[150px] mt-5  ">
@@ -79,11 +78,7 @@ export default function SignUp() {
           </button>
         </div>
       </div>
-      <div class="text-center mt-14">
-        <a href="/SignIn" class="w-[350px] p-3 bg-[#7CD0FF] text-center rounded-3xl">
-          Đăng nhập nếu đã có tài khoản
-        </a>
-      </div>
     </div>
+    </form>
   );
 }
