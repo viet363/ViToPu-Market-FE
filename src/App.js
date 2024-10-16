@@ -9,6 +9,7 @@ import PageShop from "./Components/PageShop";
 import PageProduct from "./Components/PageProduct";
 import SignUp from "./Components/SignUp";
 import SignIn from "./Components/SignIn";
+import ForgotPass from "./Components/ForgotPass";
 
 const App = () => {
   const location = useLocation();
@@ -21,13 +22,13 @@ const App = () => {
           alt="BackGround"
         ></img>
       </div>
-      <div className="absolute z-10 w-full">
-        {location.pathname === "/SignIn" || location.pathname === "/SignUp" ? (
+      <div className="absolute z-10 w-full h-full">
+        {location.pathname === "/SignIn" || location.pathname === "/SignUp" || location.pathname === "/ForgotPass" ? (
           <div></div>
         ) : (
           <OptionBar></OptionBar>
         )}
-        <div className="translate-y-[80px] z-0">
+        <div className="translate-y-[80px] z-0 h-full">
           <Routes>
             <Route path="/" element={<Home></Home>}></Route>
             <Route
@@ -47,6 +48,7 @@ const App = () => {
             ></Route>
             <Route path="/SignUp" element={<SignUp></SignUp>}></Route>
             <Route path="/SignIn" element={<SignIn></SignIn>}></Route>
+            <Route path="/ForgotPass" element={<ForgotPass/>} />
           </Routes>
         </div>
       </div>

@@ -1,8 +1,13 @@
 import { Link, useLocation } from "react-router-dom";
+import { UserContext } from "../Data/User";
+import { useContext, useEffect } from "react";
 
 export default function OptionBar() {
+  const {User, inforUser} = useContext(UserContext)
   const location = useLocation();
-
+  useEffect(() => {
+    inforUser()
+  },[])
   return (
     <>
       <div className="w-full fixed z-10 flex justify-between bg-[rgba(123,173,182,0.7)]">
@@ -80,7 +85,7 @@ export default function OptionBar() {
           </div>
         </div>
         <div className="w-[20%]">
-          <Link to="/Account">
+          <Link to={User._id? "/Account" : "/SignIn"}>
             <div className="bg-[rgba(83,165,185,0.8)] p-[9px] flex justify-center items-center gap-10 text-white rounded-l-[30px] border-y-[2px] border-l-[2px] border-[rgba(83,165,185,0.8)] duration-200 hover:border-white hover:bg-[#86B8D4] ease-linear">
               <div>
                 <p>
