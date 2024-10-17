@@ -1,6 +1,6 @@
 import axios from "axios";
 import React, { useState } from "react";
-import { useNavigate,Link } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 
 
 export default function ForgotPass() {
@@ -112,9 +112,9 @@ export default function ForgotPass() {
         </form>
       </div>
       <div>
-        <button className="bg-[#458FFF] border-2 border-[#458FFF] text-[25px] text-white rounded-2xl px-3 py-1 duration-200 ease-linear hover:bg-white hover:text-[#458FFF]">
+        <Link to="/SignIn" className="bg-[#458FFF] border-2 border-[#458FFF] text-[25px] text-white rounded-2xl px-3 py-1 duration-200 ease-linear hover:bg-white hover:text-[#458FFF]">
           Quay về đăng nhập
-        </button>
+        </Link>
       </div>
     </div>
   );
