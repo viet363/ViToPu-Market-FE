@@ -7,9 +7,7 @@ import axios from "axios";
 export default function Home() {
   const widthScreen = window.innerWidth;
   const [scrollPage, setScrollPage] = useState(0);
-  const [products, setProducts] = useState([]);
-  const [listID, setListID] = useState([]);
-  const [listIDSearch, setListIDSearch] = useState([]);
+  const [listProduct, setListProduct] = useState([]);
   const [valueSearch, setvalueSearch] = useState("");
   const scrollProduct = useRef(null);
 
@@ -56,33 +54,12 @@ export default function Home() {
     return () => clearInterval(interval);
   }, [scrollPage]);
 
-  const AddElement = async (Array) => {
-    const ProductList = [];
-    const promises = [];
-    for (let i = 0; i < Array.length; i++) {
-      promises.push(
-        axios
-          .post("http://localhost:9000/SanPham/Detail", {
-            maSanPham: Array[i].maSanPham,
-          })
-          .then((rs) => {
-            ProductList.push({
-              ImageP: rs.data.ImageValue,
-              TypeImage: rs.data.LoaiAnh,
-              NameP: rs.data.tenSanPham,
-              PriceP: rs.data.giaTien,
-              IdP: rs.data.maSanPham,
-            });
-          })
-      );
-    }
-    await Promise.all(promises);
-    setProducts([...ProductList]);
-  };
-
   const TakeList = () => {
-    axios.post("http://localhost:9000/SanPham/ListID").then((rs) => {
-      setListID(rs.data);
+    axios.post("http://localhost:9000/SanPham/Products").then((rs) => {
+      console.log(rs.data)
+      setListProduct(rs.data);
+    }).catch(err => {
+      console.log(err)
     });
   };
 
@@ -90,36 +67,20 @@ export default function Home() {
     axios
       .post("http://localhost:9000/SanPham/Search", { Search: valueSearch })
       .then((rs) => {
-        setListIDSearch(rs.data);
+        setListProduct(rs.data);
       })
       .catch((err) => {
-        setProducts([]);
+        setListProduct([]);
       });
   };
 
   useEffect(() => {
-    if (listID.length >= 0) {
-      AddElement(listID);
+    if(valueSearch){
+      TakeListSearch()
+    }else{
+      TakeList();
     }
-  }, [listID]);
-
-  useEffect(() => {
-    if (listIDSearch.length >= 0) {
-      AddElement(listIDSearch);
-    }
-  }, [listIDSearch]);
-
-  useEffect(() => {
-    if (valueSearch) {
-      TakeListSearch();
-    } else {
-      AddElement(listID);
-    }
-  }, [valueSearch]);
-
-  useEffect(() => {
-    TakeList();
-  }, []);
+  },[valueSearch])
 
   return (
     <div className="flex flex-col overflow-hidden">
@@ -214,7 +175,7 @@ export default function Home() {
             onChange={ChangeInputSearch}
           ></input>
         </div>
-        {products.length === 0 ? (
+        {listProduct.length === 0 ? (
           <div className="flex flex-col gap-10 justify-center items-center w-full h-full">
             <div>
               <svg
@@ -236,7 +197,7 @@ export default function Home() {
             className="grid grid-cols-4 w-full p-7 h-full overflow-auto bg-white gap-[30px]"
             ref={scrollProduct}
           >
-            {products.map((p) => (
+            {listProduct.map((p) => (
               <div>
                 <button className="flex flex-col duration-200 w-[450px] ease-linear hover:text-[rgba(83,165,185,1)] hover:shadow-2xl">
                   <div className="relative overflow-hidden w-[450px] h-[300px]">
@@ -246,19 +207,19 @@ export default function Home() {
                           className="h-[300px] w-[450px]"
                           effect="blur"
                           src={
-                            "data:image/" + p.TypeImage + ";base64," + p.ImageP
+                            "http://localhost:9000/Image/" + p.hinhAnh + "." + p.loaiAnh
                           }
-                          alt={p.IdP}
+                          alt={p.tenSanPham}
                         ></LazyLoadImage>
                       </div>
                     </div>
                   </div>
                   <div className="p-2">
-                    <p>{p.NameP}</p>
+                    <p>{p.tenSanPham}</p>
                   </div>
                   <div className="flex justify-between items-center w-full px-2 pb-2">
                     <div>
-                      <p>{Intl.NumberFormat().format(p.PriceP)} VND</p>
+                      <p>{Intl.NumberFormat().format(p.giaTien)} VND</p>
                     </div>
                     <div>
                       <button className="bg-[rgba(83,165,185,1)] text-white p-2 border-[rgba(83,165,185,1)] border-[2px] duration-200 ease-linear hover:bg-white hover:text-[rgba(83,165,185,1)]">

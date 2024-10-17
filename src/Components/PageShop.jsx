@@ -1,79 +1,289 @@
-import React from 'react'
+import axios from "axios";
+import { UserContext } from "../Data/User";
+import { useContext, useState, useEffect, useRef } from "react";
 
 export default function PageShop() {
+  // eslint-disable-next-line no-unused-vars
+  const { user, inforUser, shop, checkShop, shopPreview, inforShop } =
+    useContext(UserContext);
+  const [isWait, setIsWait] = useState(true);
+  const [selectedImage, setSelectedImage] = useState(null);
+  const [listProduct, setListProduct] = useState([]);
+  const [imagePreview, setImagePreview] = useState("");
+  const [isOwner] = useState(
+    window.localStorage.getItem("IDS") === window.localStorage.getItem("IDSP")
+  );
+  const [product, setProduct] = useState({
+    tenSanPham: "",
+    moTa: "",
+    giaTien: 0,
+    maCuaHang: "",
+    loaiAnh: "",
+  });
+  const inputFile = useRef(null);
+
+  useEffect(() => {
+    const IDS = window.localStorage.getItem("IDS");
+    inforShop();
+    axios
+      .post("http://localhost:9000/SanPham/ProductOfShop", { IDS: IDS })
+      .then((rs) => {
+        if (rs.data.Status !== "Not Found") {
+          setListProduct(rs.data);
+        }
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  useEffect(() => {
+    if (shopPreview.maCuaHang) {
+      setIsWait(false);
+      if (isOwner) {
+        setProduct({
+          ...product,
+          maCuaHang: shopPreview.maCuaHang,
+        });
+      }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [shopPreview]);
+
+  const ChangeInput = (e) => {
+    const { name, value } = e.target;
+    setProduct({ ...product, [name]: value });
+  };
+
+  const handleImageChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      const fileExtension = file.name.split(".").pop().toLowerCase();
+      setSelectedImage(file);
+      setProduct({ ...product, loaiAnh: fileExtension });
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setImagePreview(reader.result);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleClickInput = (e) => {
+    e.preventDefault();
+    inputFile.current.click();
+  };
+
+  const handleAddProduct = (e) => {
+    e.preventDefault();
+    const fd = new FormData();
+    fd.append("DataImage", selectedImage);
+    fd.append("tenSanPham", product.tenSanPham);
+    fd.append("maCuaHang", product.maCuaHang);
+    fd.append("moTa", product.moTa);
+    fd.append("giaTien", product.giaTien);
+    fd.append("loaiAnh", product.loaiAnh);
+    axios
+      .post("http://localhost:9000/SanPham/AddProduct", fd, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      })
+      .then((rs) => {
+        window.localStorage.setItem("IDP", rs.data.IDP);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  };
+
   return (
-    <div class="flex flex-col items-center w-[1870px] h-full bg-gray-100 bg-opacity-40 rounded-lg mx-4 m-4 space-y-6 space-x-6">
-      {/* Khung 1 */}
-      <div class="flex items-center justify-center w-[832px] h-[392px] rounded-3xl bg-white mt-5">
-        <div class="space-y-4">
-          <button class="w-[220px] h-[220px] mt-5">
-            <svg xmlns="http://www.w3.org/2000/svg" class="w-[220px] h-[220px] text-blue-600 mb-8" viewBox="0 0 512 512" fill="currentColor">
-              <path d="M399 384.2C376.9 345.8 335.4 320 288 320H224c-47.4 0-88.9 25.8-111 64.2c35.2 39.2 86.2 63.8 143 63.8s107.8-24.7 143-63.8zM0 256a256 256 0 1 1 512 0A256 256 0 1 1 0 256zm256 16a72 72 0 1 0 0-144 72 72 0 1 0 0 144z" />
-            </svg>
-          </button>
-          <div class="text-center">
-            *Tên cửa hàng
+    <>
+      {isWait ? (
+        <div className="w-full h-screen flex flex-col justify-center items-center bg-[rgba(255,255,255,1)]">
+          <div>
+            <span className="loader"></span>
           </div>
-          <div class="text-center">
-            *Địa chỉ
+          <div>
+            <p>Loading...</p>
           </div>
         </div>
-      </div>
-      {/* Khung 2  */}
-      <div class="flex flex-col w-[1790px]">
-        <div class="flex flex-row">
-          <div class="basis-1/4 flex justify-center bg-white h-[400px] rounded-l-xl p-8">
-            <div class="flex items-end justify-end bg-[#D9D9D9] w-[380px] h-[235px] mt-9">
-              <input type="file" class="absolute w-[40px] h-[40px] rounded-full opacity-0 cursor-pointer overflow-hidden" />
-              <svg xmlns="http://www.w3.org/2000/svg" class="w-[40px] h-[40px] mb-4 mr-4" viewBox="0 0 512 512" fill="blue">
-                <path d="M149.1 64.8L138.7 96 64 96C28.7 96 0 124.7 0 160L0 416c0 35.3 28.7 64 64 64l384 0c35.3 0 64-28.7 64-64l0-256c0-35.3-28.7-64-64-64l-74.7 0L362.9 64.8C356.4 45.2 338.1 32 317.4 32L194.6 32c-20.7 0-39 13.2-45.5 32.8zM256 192a96 96 0 1 1 0 192 96 96 0 1 1 0-192z" />
-              </svg>
+      ) : (
+        <div class="flex flex-col w-full h-full">
+          <div className="w-full flex items-center justify-center bg-gradient-cloud">
+            <div className="relative w-full h-[500px] overflow-hidden">
+              <img
+                className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 object-cover"
+                src={
+                  "http://localhost:9000/Image/" +
+                  shopPreview.hinhAnh +
+                  "." +
+                  shopPreview.loaiAnh
+                }
+                alt={shopPreview.tenCuaHang}
+              />
+
+              <div className="absolute flex flex-col justify-center items-center top-0 w-full h-full">
+                <div className="flex flex-col w-[70%] h-[400px] justify-center items-center gap-3 bg-[rgba(255,255,255,0.4)] rounded-xl">
+                  <div>
+                    <p className="text-[35px] font-bold">CỬA HÀNG</p>
+                  </div>
+                  <div className="w-[50%] h-1 bg-slate-500 rounded-xl"></div>
+                  <div>
+                    <p className="text-[50px] font-serif py-5">
+                      {shopPreview.tenCuaHang}
+                    </p>
+                  </div>
+                  <div className="w-[50%] h-1 bg-slate-500 rounded-xl"></div>
+                  <div>
+                    <p>Địa Chỉ: {shopPreview.diaChi}</p>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
-          <div class="basis-3/4 bg-[#E3FCFF] h-[400px] rounded-r-xl text-black ">
-            <div class="flex flex-col  space-y-6 mt-5  ">
-              <div class="bg-white w-[1200px] h-[65px] rounded-2xl ml-20">
-                <input type="text" placeholder="Tên cửa hàng" class="w-full h-full rounded-2xl p-4 " />
-              </div>
-              <div class="bg-white w-[1200px] h-[65px] rounded-2xl ml-20">
-                <input type="text" placeholder="Địa chỉ" class="w-full h-full rounded-2xl p-4 " />
-              </div>
-              <div class="bg-white w-[1200px] h-[115px] rounded-2xl  ml-20">
-                <input type="text" placeholder="*Nhập mô tả" class="w-full h-full rounded-2xl p-4 " />
-              </div>
-              <div class=" ml-96 ">
-                <button type="submit" class="w-[288px] bg-[#7CD0FF] py-2 rounded-3xl text-white font-semibold">
-                  Bán sản phẩm
-                </button>
+          {isOwner ? (
+            <div className="w-full flex justify-center items-center bg-cyan-200">
+              <div className="w-[80%]">
+                <form className="flex w-full">
+                  <div className="h-[400px]">
+                    <button
+                      className="w-[500px] h-[400px]"
+                      onClick={handleClickInput}
+                    >
+                      <img
+                        className="object-cover"
+                        src={imagePreview ? imagePreview : "/Image/Product.jpg"}
+                        alt=""
+                      />
+                    </button>
+                    <input
+                      required
+                      ref={inputFile}
+                      onChange={handleImageChange}
+                      type="file"
+                      className="hidden"
+                    ></input>
+                  </div>
+                  <div className="flex flex-col flex-grow gap-3 justify-center items-center">
+                    <div>
+                      <input
+                        onChange={ChangeInput}
+                        required
+                        name="tenSanPham"
+                        placeholder="Tên sản phẩm"
+                        className="px-4 py-3 w-[450px] rounded-xl"
+                        type="text"
+                      />
+                    </div>
+                    <div>
+                      <input
+                        onChange={ChangeInput}
+                        required
+                        name="giaTien"
+                        placeholder="Giá tiền"
+                        className="px-4 py-3 w-[450px] rounded-xl"
+                        type="number"
+                      />
+                    </div>
+                    <div>
+                      <textarea
+                        onChange={ChangeInput}
+                        required
+                        placeholder="Mô tả"
+                        className="resize-none px-4 py-3 w-[450px] h-[150px] outline-none rounded-xl"
+                        name="moTa"
+                      ></textarea>
+                    </div>
+                    <div>
+                      <button
+                        onSubmit={handleAddProduct}
+                        type="submit"
+                        className="bg-[#458FFF] border-2 border-[#458FFF] text-[25px] text-white rounded-2xl px-3 py-1 duration-200 ease-linear hover:bg-white hover:text-[#458FFF]"
+                      >
+                        Thêm Sản Phẩm
+                      </button>
+                    </div>
+                  </div>
+                </form>
               </div>
             </div>
+          ) : (
+            <></>
+          )}
+          <div className="w-full bg-[#29c6c0] p-5 text-white">
+            <p>Sản phẩm của cửa hàng</p>
           </div>
-        </div>
-      </div>
-      {/* Khung 3 */}
-      <div class="bg-white bg-opacity-30 flex items-center justify-center">
-        <div class="grid-container grid grid-cols-3 gap-5 w-[1790px] h-[600px] mt-4 mx-4 overflow-auto scrollbar-hidden ">
-          {Array(20).fill(0).map((_, index) => (
-            <div key={index} class="bg-[#E3FCFF] rounded-lg flex flex-col w-[455px] h-[220px]">
-              <div class="flex items-center">
-                <button class="bg-[#D9D9D9] h-[150px] mb-2 rounded-md text-center w-full flex items-center">
-                  <span class="flex-1 text-center">Ảnh sản phẩm</span>
-                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512" class="h-10 mr-4 mb-8">
-                    <path
-                      d="M135.2 17.7L128 32 32 32C14.3 32 0 46.3 0 64S14.3 96 32 96l384 0c17.7 0 32-14.3 32-32s-14.3-32-32-32l-96 0-7.2-14.3C307.4 6.8 296.3 0 284.2 0L163.8 0c-12.1 0-23.2 6.8-28.6 17.7zM416 128L32 128 53.2 467c1.6 25.3 22.6 45 47.9 45l245.8 0c25.3 0 46.3-19.7 47.9-45L416 128z"
-                      fill="red"
-                    />
-                  </svg>
-                </button>
+          {listProduct.length === 0 ? (
+            <div className="flex flex-col gap-10 justify-center items-center w-full bg-[#c2fffd] h-[760px]">
+              <div>
+                <svg
+                  className="w-[100px] font-extrabold opacity-70"
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 576 512"
+                >
+                  <path d="M0 24C0 10.7 10.7 0 24 0L69.5 0c22 0 41.5 12.8 50.6 32l411 0c26.3 0 45.5 25 38.6 50.4l-41 152.3c-8.5 31.4-37 53.3-69.5 53.3l-288.5 0 5.4 28.5c2.2 11.3 12.1 19.5 23.6 19.5L488 336c13.3 0 24 10.7 24 24s-10.7 24-24 24l-288.3 0c-34.6 0-64.3-24.6-70.7-58.5L77.4 54.5c-.7-3.8-4-6.5-7.9-6.5L24 48C10.7 48 0 37.3 0 24zM128 464a48 48 0 1 1 96 0 48 48 0 1 1 -96 0zm336-48a48 48 0 1 1 0 96 48 48 0 1 1 0-96z" />
+                </svg>
               </div>
-              <div class="flex justify-between items-center">
-                <div class="text-lg font-semi text-center">*Tên sản phẩm</div>
-                <div class="text-[#FF7816] text-right text-lg">100,000.00₫</div>
+              <div>
+                <p className="text-[40px] font-extrabold opacity-70">
+                  Không có sản phẩm
+                </p>
               </div>
             </div>
-          ))}
+          ) : (
+            <div className="bg-[#c2fffd] w-full grid grid-cols-4 justify-center overflow-auto h-[760px] p-5">
+              {listProduct.map((p) => (
+                <div className="w-full">
+                  <button className="relative flex flex-col gap-3 shadow-none bg-transparent duration-200 ease-linear border-2 border-white hover:bg-white hover:border-transparent hover:shadow-default">
+                    <div className="flex justify-center items-center w-full h-[300px]">
+                      <div>
+                        <img
+                          className="w-[450px] h-[300px] object-fill"
+                          src={
+                            "http://localhost:9000/Image/" +
+                            p.hinhAnh +
+                            "." +
+                            p.loaiAnh
+                          }
+                          alt={p.tenSanPham}
+                        ></img>
+                      </div>
+                    </div>
+                    <div className="p-3">
+                      <p>{p.tenSanPham}</p>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <div className="p-3">
+                        <p>{p.giaTien} VND</p>
+                      </div>
+                      {isOwner ? (
+                        <></>
+                      ) : (
+                        <div>
+                          <button className="bg-[rgba(83,165,185,1)] text-white p-2 border-[rgba(83,165,185,1)] border-[2px] duration-200 ease-linear hover:bg-white hover:text-[rgba(83,165,185,1)]">
+                            Thêm
+                          </button>
+                        </div>
+                      )}
+                    </div>
+                    {isOwner? <button className="absolute top-0 right-0 m-3">
+                      <svg
+                      className="w-[50px] h-[50px] fill-red-400 stroke-white stroke-[5px] duration-200 ease-linear hover:fill-white hover:stroke-red-400"
+                        xmlns="http://www.w3.org/2000/svg"
+                        viewBox="0 0 448 512"
+                      >
+                        <path d="M135.2 17.7L128 32H32C14.3 32 0 46.3 0 64S14.3 96 32 96H416c17.7 0 32-14.3 32-32s-14.3-32-32-32H320l-7.2-14.3C307.4 6.8 296.3 0 284.2 0H163.8c-12.1 0-23.2 6.8-28.6 17.7zM416 128H32L53.2 467c1.6 25.3 22.6 45 47.9 45H346.9c25.3 0 46.3-19.7 47.9-45L416 128z" />
+                      </svg>
+                    </button>: <></>}
+                  </button>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
-      </div>
-    </div>
-  )
+      )}
+    </>
+  );
 }

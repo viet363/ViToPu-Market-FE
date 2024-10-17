@@ -132,7 +132,7 @@ export default function SignUp() {
                 <div class=" overflow-hidden absolute bg-white w-[75px] h-[75px] rounded-full flex items-center justify-center right-[-10px] bottom-[-40px]">
                   <input
                     type="file"
-                    class="absolute  rounded-full opacity-0 cursor-pointer"
+                    class="absolute rounded-full opacity-0 cursor-pointer"
                     accept="image/*"
                     onChange={handleImageChange}
                     required
@@ -273,7 +273,7 @@ export default function SignUp() {
           <div class="text-center  w-[150px] mt-5  ">
             <button
               type="submit"
-              class="w-full bg-[#458FFF] text-white font-semibold py-2 rounded-3xl "
+              className="bg-[#458FFF] border-2 border-[#458FFF] text-[25px] text-white rounded-2xl px-3 py-1 duration-200 ease-linear hover:bg-white hover:text-[#458FFF]"
             >
               Xác nhận
             </button>

@@ -1,34 +1,139 @@
-import React from 'react'
+import React, { useRef, useState, useContext, useEffect } from "react";
+import { UserContext } from "../Data/User";
+import axios from "axios";
+import { useNavigate } from "react-router-dom";
 
 export default function CreateShop() {
+  const { User, inforUser } = useContext(UserContext);
+  const [selectedImage, setSelectedImage] = useState(null);
+  const [imagePreview, setImagePreview] = useState("");
+  const [shop, setShop] = useState({
+    tenCuaHang: "",
+    diaChi: "",
+    loaiAnh: "",
+    maKhachHang: "",
+  });
+  const inputFile = useRef(null);
+
+  useEffect(() => {
+    inforUser();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  useEffect(() => {
+    if (User.user) {
+      setShop({ ...shop, maKhachHang: User.user.maKhachHang });
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [User]);
+
+  const ChangeInput = (e) => {
+    const { name, value } = e.target;
+    setShop({ ...shop, [name]: value });
+  };
+
+  const handleImageChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      const fileExtension = file.name.split(".").pop().toLowerCase();
+      setSelectedImage(file);
+      setShop({ ...shop, loaiAnh: fileExtension });
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setImagePreview(reader.result);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleClickInput = () => {
+    inputFile.current.click();
+  };
+
+  const Navigate = useNavigate()
+
+  const handleCreateShop = (e) => {
+    e.preventDefault();
+    const fd = new FormData();
+    fd.append("DataImage", selectedImage);
+    fd.append("tenCuaHang", shop.tenCuaHang);
+    fd.append("diaChi", shop.diaChi);
+    fd.append("maKhachHang", shop.maKhachHang);
+    fd.append("loaiAnh", shop.loaiAnh);
+    axios.post("http://localhost:9000/CuaHang/CreateShop", fd, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    }).then(rs => {
+      if(rs.data.Status === "Success"){
+        window.localStorage.setItem("IDS", rs.data.maCuaHang)
+        window.localStorage.setItem("IDSP", rs.data.maCuaHang)
+        Navigate("/PageShop")
+      }
+    }).catch(err => {
+      console.log(err)
+    })
+  };
+
   return (
-    <div class="flex items-center justify-center " >
-      <div class="w-[1800px] h-[530px] mt-32 rounded-3xl bg-gray-100 bg-opacity-30 p-5 ">
-        <div class="flex flex-row ">
-          <div class="basis-1/4 bg-white h-[490px] rounded-l-xl ">
-            <div class="flex  justify-center ">
-              <button class=" flex items-center justify-center w-[220px] h-[220px] mt-24 ">
-                <svg xmlns="http://www.w3.org/2000/svg" class="w-[220px] h-[220px] text-blue-600" viewBox="0 0 512 512" fill="currentColor">
-                  <path d="M399 384.2C376.9 345.8 335.4 320 288 320H224c-47.4 0-88.9 25.8-111 64.2c35.2 39.2 86.2 63.8 143 63.8s107.8-24.7 143-63.8zM0 256a256 256 0 1 1 512 0A256 256 0 1 1 0 256zm256 16a72 72 0 1 0 0-144 72 72 0 1 0 0 144z" />
-                </svg>
-              </button>
-            </div>
-          </div>
-          <div class=" basis-3/4 bg-[#E3FCFF] h-[490px] rounded-r-xl ">
-            <div class="flex flex-col items-center justify-center p-36 space-y-16">
-              <div class="bg-white w-[515px] h-[65px] rounded-2xl">
-                <input type="text" placeholder="Tên cửa hàng" class="mt-1 w-full rounded-2xl p-4" />
-              </div>
-              <div class="bg-white w-[515px] h-[65px] rounded-2xl">
-                <input type="text" placeholder="Địa chỉ" class="mt-1 w-full rounded-2xl p-4" />
-              </div>
-              <button type="submit" class="w-[290px] bg-[#7CD0FF]  py-2 rounded-3xl  ">
-              Đăng ký cửa hàng
+    <div class="flex items-center justify-center w-full h-full bg-gradient-cloud">
+      <div className="w-[80%] flex bg-[rgba(242,244,255,0.65)] rounded-3xl p-5 shadow-default gap-4">
+        <div className="w-[400px] h-[400px] flex justify-center items-center overflow-hidden rounded-full">
+          <div>
+            <button onClick={handleClickInput}>
+              <img
+                className="w-[400px]"
+                src={imagePreview ? imagePreview : "/Image/Shop.jpg"}
+                alt="Avatar"
+              ></img>
             </button>
-            </div>
+            <input
+              ref={inputFile}
+              onChange={handleImageChange}
+              className="hidden"
+              type="file"
+              required
+            ></input>
+          </div>
+        </div>
+        <div className="w-1 justify-stretch bg-slate-600 rounded-xl"></div>
+        <div className="flex flex-grow justify-center items-center">
+          <div>
+            <form onSubmit={handleCreateShop} className="flex flex-col justify-center items-center gap-5" >
+              <div>
+                <p className="text-[30px] font-bold">TẠO CỬA HÀNG</p>
+              </div>
+              <div className="w-[200px] h-1 bg-slate-400 rounded-xl"></div>
+              <div>
+                <input
+                  name="tenCuaHang"
+                  className="px-4 py-3 w-[450px] rounded-xl"
+                  placeholder="Nhập tên cửa hàng"
+                  onChange={ChangeInput}
+                  required
+                ></input>
+              </div>
+              <div>
+                <input
+                  name="diaChi"
+                  className="px-4 py-3 w-[450px] rounded-xl"
+                  placeholder="Nhập địa chỉ cửa hàng"
+                  onChange={ChangeInput}
+                  required
+                ></input>
+              </div>
+              <div>
+                <button
+                  type="submit"
+                  className="bg-[#458FFF] border-2 border-[#458FFF] text-[25px] text-white rounded-2xl px-3 py-1 duration-200 ease-linear hover:bg-white hover:text-[#458FFF]"
+                >
+                  Xác nhận
+                </button>
+              </div>
+            </form>
           </div>
         </div>
       </div>
     </div>
-  )
+  );
 }

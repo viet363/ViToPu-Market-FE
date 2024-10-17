@@ -1,54 +1,152 @@
-import React from 'react'
+import React, { useEffect, useState } from "react";
+import { UserContext } from "../Data/User";
+import { useContext } from "react";
+import { useNavigate } from "react-router-dom";
 
 export default function Account() {
+  const { User, inforUser, shop, checkShop } = useContext(UserContext);
+  const [isWait, setIsWait] = useState(true);
+  const [birth, setBirth] = useState({
+    Ngay: 0,
+    Thang: 0,
+    Nam: 0,
+  });
+
+  useEffect(() => {
+    inforUser();
+    checkShop();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  useEffect(() => {
+    if (User.user && shop._id) {
+      setIsWait(false);
+      const birthDate = new Date(User.user.ngaySinh);
+      setBirth({
+        Ngay: birthDate.getDate(),
+        Thang: birthDate.getMonth() + 1,
+        Nam: birthDate.getFullYear(),
+      });
+    }else if(User.user){
+      setIsWait(false);
+      const birthDate = new Date(User.user.ngaySinh);
+      setBirth({
+        Ngay: birthDate.getDate(),
+        Thang: birthDate.getMonth() + 1,
+        Nam: birthDate.getFullYear(),
+      });
+    }
+  }, [User, shop]);
+
+  const Navigate = useNavigate();
+
+  const signOut = (e) => {
+    e.preventDefault();
+    window.localStorage.setItem("ID", "");
+    window.localStorage.setItem("IDU", "");
+    Navigate("/");
+  };
+
   return (
-    <div className="flex flex-col items-center w-[1800px] h-[950px] m-10 mx-16 rounded-3xl  bg-gray-100 bg-opacity-30 p-5 space-y-5">
-      <div className="flex w-full">
-        <div className="basis-1/4 bg-[#E3FCFF] h-[490px] rounded-l-xl flex flex-col justify-between p-4">
-          {/*  ảnh đại diện và Đăng xuất */}
-          <div className="flex flex-col items-center flex-grow">
-            <button className="flex items-center justify-center w-[220px] h-[220px] mt-24">
-              <svg xmlns="http://www.w3.org/2000/svg" className="w-[220px] h-[220px] text-blue-600" viewBox="0 0 512 512" fill="currentColor">
-                <path d="M399 384.2C376.9 345.8 335.4 320 288 320H224c-47.4 0-88.9 25.8-111 64.2c35.2 39.2 86.2 63.8 143 63.8s107.8-24.7 143-63.8zM0 256a256 256 0 1 1 512 0A256 256 0 1 1 0 256zm256 16a72 72 0 1 0 0-144 72 72 0 1 0 0 144z" />
-              </svg>
-            </button>
+    <>
+      {isWait ? (
+        <div className="w-full h-screen flex flex-col justify-center items-center bg-[rgba(255,255,255,1)]">
+          <div>
+            <span className="loader"></span>
           </div>
-          <div className="flex justify-center mb-4">
-            <button type="submit" className="text-center text-white w-[215px] h-[60px] bg-[#FF7070] py-2 rounded-2xl">
-              Đăng xuất
-            </button>
+          <div>
+            <p>Loading...</p>
           </div>
         </div>
-        <div className="basis-3/4 bg-white h-[490px] rounded-r-xl text-black font-bold p-4">
-          <div className="flex flex-col space-y-3">
-            <div className="bg-white w-full h-[65px] flex items-center pl-4">*Tên</div>
-            <div className="bg-white w-full h-[65px] flex items-center pl-4">*Ngày sinh</div>
-            <div className="bg-white w-full h-[65px] flex items-center pl-4">*Giới tính</div>
-            <div className="bg-white w-full h-[65px] flex items-center pl-4">*Địa chỉ</div>
-            <div className="bg-white w-full h-[65px] flex items-center pl-4">*Email</div>
-            <button type="submit" class="w-[290px] bg-[#7CD0FF]  py-2 rounded-3xl  ">Trở thành cửa hàng </button>
-          </div>
-        </div>
-      </div>
-      {/* Phần lịch sử mua hàng */}
-      <div className="w-full h-[350px] rounded-3xl bg-[#E3FCFF] mt-5">
-        <div className="flex justify-between items-center h-[80px] bg-[#86B8D4] text-white rounded-t-3xl">
-          <div className="px-4 py-2 text-2xl font-semibold w-full text-center">Lịch sử mua hàng</div>
-        </div>
-        <div className="grid grid-cols-1 gap-5 p-6 overflow-auto scrollbar-hidden  h-[270px] bg-[#E3FCFF]">
-          {Array(10).fill(0).map((_, index) => (
-            <div key={index} className="flex items-center justify-between bg-white rounded-lg p-4 shadow-md">
-              <div className="flex items-center flex-grow">
-                <div className="ml-4 text-lg font-medium">Tên sản phẩm</div>
-                <div className="ml-8 text-gray-600">Tên cửa hàng</div>
-                <div className="ml-8 text-gray-600">*Ngày mua</div>
+      ) : (
+        <div className="flex flex-col rounded-3xl w-full">
+          <div className="flex gap-5 w-full bg-gradient-cloud justify-center items-center ">
+            <div className="w-[80%] flex">
+              <div className="w-[420px] h-[500px] bg-[rgba(255,255,255,0.5)] rounded-[50px] m-5 flex flex-col items-center justify-center gap-3">
+                <div className="w-[400px] h-[400px] rounded-full overflow-hidden flex items-center justify-center">
+                  <div>
+                    <img
+                      src={"http://localhost:9000" + User.hinhAnh}
+                      alt={User.user.hoVaTen}
+                    ></img>
+                  </div>
+                </div>
+                <div>
+                  <button
+                    onClick={signOut}
+                    className="bg-red-400 border-2 border-red-400 text-[25px] text-white rounded-2xl px-3 py-1 duration-200 ease-linear hover:bg-white hover:text-red-400"
+                  >
+                    Đăng xuất
+                  </button>
+                </div>
               </div>
-              <div className="text-orange-500 font-semibold">x1</div>
-              <div className="text-orange-500 font-semibold">100,000.00đ</div>
+              <div className="flex-grow flex flex-col justify-center gap-3">
+                <div className="text-[25px]">
+                  <div className="flex">
+                    <div className="font-bold px-5 w-[200px]">Tên </div>
+                    <div>{User.user.hoVaTen}</div>
+                  </div>
+                </div>
+                <div className="w-full h-1 bg-slate-400 rounded-xl"></div>
+                <div className="text-[25px]">
+                  <div className="flex">
+                    <div className="font-bold px-5 w-[200px]">Ngày Sinh </div>
+                    <div>
+                      {"Ngày " +
+                        birth.Ngay +
+                        ", Tháng " +
+                        birth.Thang +
+                        ", Năm " +
+                        birth.Nam}
+                    </div>
+                  </div>
+                </div>
+                <div className="w-full h-1 bg-slate-400 rounded-xl"></div>
+                <div className="text-[25px]">
+                  <div className="flex">
+                    <div className="font-bold px-5 w-[200px]">Giới tính </div>
+                    <div>{User.user.gioiTinh}</div>
+                  </div>
+                </div>
+                <div className="w-full h-1 bg-slate-400 rounded-xl"></div>
+                <div className="text-[25px]">
+                  <div className="flex">
+                    <div className="font-bold px-5 w-[200px]">Địa Chỉ </div>
+                    <div>{User.user.diaChi}</div>
+                  </div>
+                </div>
+                <div className="w-full h-1 bg-slate-400 rounded-xl"></div>
+                <div className="text-[25px]">
+                  <div className="flex">
+                    <div className="font-bold px-5 w-[200px]">Email </div>
+                    <div>{User.user.email}</div>
+                  </div>
+                </div>
+                <div className="w-full h-1 bg-slate-400 rounded-xl"></div>
+                <div className="translate-y-10">
+                  <button
+                    onClick={
+                      shop.maCuaHang
+                        ? () => {
+                            window.localStorage.setItem("IDSP", shop._id);
+                            Navigate("/PageShop");
+                          }
+                        : () => Navigate("/CreateShop")
+                    }
+                    className="bg-[#458FFF] border-2 border-[#458FFF] text-[25px] text-white rounded-2xl px-3 py-1 duration-200 ease-linear hover:bg-white hover:text-[#458FFF]"
+                  >
+                    {shop.maCuaHang ? "Cửa hàng của tôi" : "Trở thành cửa hàng"}
+                  </button>
+                </div>
+              </div>
             </div>
-          ))}
+          </div>
+          <div className="bg-[#48b9cc]">
+            <p className="p-5 text-[25px] text-white">Lịch sử mua hàng</p>
+          </div>
+          <div className="h-[760px] bg-[#a6e2ed]"></div>
         </div>
-      </div>
-    </div>
-  )
+      )}
+    </>
+  );
 }

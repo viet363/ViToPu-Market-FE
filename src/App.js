@@ -23,12 +23,14 @@ const App = () => {
         ></img>
       </div>
       <div className="absolute z-10 w-full h-full">
-        {location.pathname === "/SignIn" || location.pathname === "/SignUp" || location.pathname === "/ForgotPass" ? (
+        {["/signin", "/signup", "/forgotpass"].includes(
+          location.pathname.toLowerCase()
+        ) ? (
           <div></div>
         ) : (
-          <OptionBar></OptionBar>
+          <OptionBar />
         )}
-        <div className="translate-y-[80px] z-0 h-full">
+        <div className="translate-y-[80px] z-0">
           <Routes>
             <Route path="/" element={<Home></Home>}></Route>
             <Route
@@ -48,7 +50,7 @@ const App = () => {
             ></Route>
             <Route path="/SignUp" element={<SignUp></SignUp>}></Route>
             <Route path="/SignIn" element={<SignIn></SignIn>}></Route>
-            <Route path="/ForgotPass" element={<ForgotPass/>} />
+            <Route path="/ForgotPass" element={<ForgotPass />} />
           </Routes>
         </div>
       </div>
