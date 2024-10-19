@@ -30,7 +30,7 @@ const App = () => {
         ) : (
           <OptionBar />
         )}
-        <div className="translate-y-[80px] z-0">
+        <div className="mt-[80px] z-0">
           <Routes>
             <Route path="/" element={<Home></Home>}></Route>
             <Route

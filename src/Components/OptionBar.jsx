@@ -86,16 +86,16 @@ export default function OptionBar() {
           </div>
         </div>
         <div className="w-[20%]">
-          <Link to={User.user? "/Account" : "/SignIn"}>
+          <Link to={User._id? "/Account" : "/SignIn"}>
             <div className="bg-[rgba(83,165,185,0.8)] p-[9px] flex justify-center items-center gap-10 text-white rounded-l-[30px] border-y-[2px] border-l-[2px] border-[rgba(83,165,185,0.8)] duration-200 hover:border-white hover:bg-[#86B8D4] ease-linear">
               <div>
                 <p>
-                  <b>{ User.user? User.user.hoVaTen : "Tài khoản"}</b>
+                  <b>{ User._id? User.hoVaTen : "Tài khoản"}</b>
                 </p>
               </div>
               <div className="flex justify-center items-center w-[60px] h-[59px] rounded-full overflow-hidden ">
                 <div>
-                  <img className="" src={User.user? "http://localhost:9000" + User.hinhAnh : "/Image/User.png"} alt="Avatar"></img>
+                  <img className="" src={User._id? "http://localhost:9000/Image/" + User.hinhAnh + "." + User.loaiAnh : "/Image/User.png"} alt="Avatar"></img>
                 </div>
               </div>
             </div>

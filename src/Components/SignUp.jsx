@@ -74,10 +74,20 @@ export default function SignUp() {
       alert("Mật khẩu không trùng nhau!");
     } else {
       const ngaySinh = new Date(ngay.nam, ngay.thang - 1, ngay.ngay);
+      const fd = new FormData();
+      fd.append("DataImage", selectedImage);
+      fd.append("hoVaTen", dataUser.hoVaTen);
+      fd.append("gioiTinh", dataUser.gioiTinh);
+      fd.append("diaChi", dataUser.diaChi);
+      fd.append("email", dataUser.email);
+      fd.append("matKhau", dataUser.matKhau);
+      fd.append("loaiAnh", dataUser.loaiAnh);
+      fd.append("ngaySinh", ngaySinh);
       axios
-        .post("http://localhost:9000/Client/SignUp", {
-          ...dataUser,
-          ngaySinh: ngaySinh,
+        .post("http://localhost:9000/Client/SignUp", fd, {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
         })
         .then((rs) => {
           if (rs.data.Status === "False") {
@@ -85,24 +95,8 @@ export default function SignUp() {
           } else if (rs.data.Status === "Not Found") {
             alert("Dịa chỉ Email này không tồn tại!");
           } else {
-            const formData = new FormData();
-            formData.append("DataImage", selectedImage);
-            formData.append("hinhAnh", rs.data.hinhAnh);
-            formData.append("loaiAnh", rs.data.loaiAnh);
-            formData.append("ID", rs.data.ID);
-            return axios
-              .post("http://localhost:9000/Client/SaveImage", formData, {
-                headers: {
-                  "Content-Type": "multipart/form-data",
-                },
-              })
-              .then((rs1) => {
-                window.localStorage.setItem("ID", rs1.data.ID);
-                Navigate("/");
-              })
-              .catch((err) => {
-                console.log(err);
-              });
+            window.localStorage.setItem("ID", rs.data.ID);
+            Navigate("/");
           }
         })
         .catch((err) => {
@@ -112,7 +106,11 @@ export default function SignUp() {
   };
 
   return (
-    <form onSubmit={handleCreateAccount} method="post" enctype="multipart/form-data">
+    <form
+      onSubmit={handleCreateAccount}
+      method="post"
+      enctype="multipart/form-data"
+    >
       <div class="flex flex-col items-center justify-center min-h-screen bg-cover bg-center">
         <div class="bg-[#253133] bg-opacity-70 rounded-lg p-8 w-[1150px] h-[700px] flex flex-col justify-center items-center ">
           <div class="text-center mb-8 ">

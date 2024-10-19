@@ -3,6 +3,7 @@ import React, { useState, useEffect, useRef } from "react";
 import { LazyLoadImage } from "react-lazy-load-image-component";
 import "react-lazy-load-image-component/src/effects/blur.css";
 import axios from "axios";
+import { useNavigate } from "react-router-dom";
 
 export default function Home() {
   const widthScreen = window.innerWidth;
@@ -47,6 +48,29 @@ export default function Home() {
     }
   };
 
+  const addToCart = (idp) => {
+    const id = window.localStorage.getItem("ID");
+    if (id) {
+      axios
+        .post("http://localhost:9000/GioHang/AddToCart", {
+          maKhachHang: id,
+          maSanPham: idp,
+        })
+        .then((rs) => {
+          if (rs.data.Status === "Success") {
+            Navigate("/Cart");
+          } else {
+            alert("Something Wrong");
+          }
+        })
+        .catch((err) => {
+          console.log(err);
+        });
+    } else {
+      Navigate("/SignIn");
+    }
+  };
+
   useEffect(() => {
     const interval = setInterval(() => {
       ChangeLastScroll();
@@ -55,12 +79,14 @@ export default function Home() {
   }, [scrollPage]);
 
   const TakeList = () => {
-    axios.post("http://localhost:9000/SanPham/Products").then((rs) => {
-      console.log(rs.data)
-      setListProduct(rs.data);
-    }).catch(err => {
-      console.log(err)
-    });
+    axios
+      .post("http://localhost:9000/SanPham/Products")
+      .then((rs) => {
+        setListProduct(rs.data);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
   };
 
   const TakeListSearch = () => {
@@ -74,13 +100,15 @@ export default function Home() {
       });
   };
 
+  const Navigate = useNavigate();
+
   useEffect(() => {
-    if(valueSearch){
-      TakeListSearch()
-    }else{
+    if (valueSearch) {
+      TakeListSearch();
+    } else {
       TakeList();
     }
-  },[valueSearch])
+  }, [valueSearch]);
 
   return (
     <div className="flex flex-col overflow-hidden">
@@ -199,7 +227,13 @@ export default function Home() {
           >
             {listProduct.map((p) => (
               <div>
-                <button className="flex flex-col duration-200 w-[450px] ease-linear hover:text-[rgba(83,165,185,1)] hover:shadow-2xl">
+                <div
+                  onClick={() => {
+                    window.localStorage.setItem("IDPP", p._id);
+                    Navigate("/PageProduct");
+                  }}
+                  className="flex flex-col duration-200 w-[450px] ease-linear hover:text-[rgba(83,165,185,1)] hover:shadow-2xl cursor-pointer"
+                >
                   <div className="relative overflow-hidden w-[450px] h-[300px]">
                     <div className="absolute flex w-full h-full justify-center items-center">
                       <div>
@@ -207,7 +241,10 @@ export default function Home() {
                           className="h-[300px] w-[450px]"
                           effect="blur"
                           src={
-                            "http://localhost:9000/Image/" + p.hinhAnh + "." + p.loaiAnh
+                            "http://localhost:9000/Image/" +
+                            p.hinhAnh +
+                            "." +
+                            p.loaiAnh
                           }
                           alt={p.tenSanPham}
                         ></LazyLoadImage>
@@ -222,12 +259,19 @@ export default function Home() {
                       <p>{Intl.NumberFormat().format(p.giaTien)} VND</p>
                     </div>
                     <div>
-                      <button className="bg-[rgba(83,165,185,1)] text-white p-2 border-[rgba(83,165,185,1)] border-[2px] duration-200 ease-linear hover:bg-white hover:text-[rgba(83,165,185,1)]">
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          addToCart(p._id);
+                        }}
+                        disabled={window.localStorage.getItem("IDS") === p.maCuaHang ? true : false}
+                        className={window.localStorage.getItem("IDS") === p.maCuaHang ? "text-white p-2 bg-slate-300" :"bg-[rgba(83,165,185,1)] text-white p-2 border-[rgba(83,165,185,1)] border-[2px] duration-200 ease-linear hover:bg-white hover:text-[rgba(83,165,185,1)]"}
+                      >
                         Thêm
                       </button>
                     </div>
                   </div>
-                </button>
+                </div>
               </div>
             ))}
           </div>

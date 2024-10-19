@@ -21,8 +21,8 @@ export default function CreateShop() {
   }, []);
 
   useEffect(() => {
-    if (User.user) {
-      setShop({ ...shop, maKhachHang: User.user.maKhachHang });
+    if (User._id) {
+      setShop({ ...shop, maKhachHang: User._id });
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [User]);
@@ -66,8 +66,8 @@ export default function CreateShop() {
       },
     }).then(rs => {
       if(rs.data.Status === "Success"){
-        window.localStorage.setItem("IDS", rs.data.maCuaHang)
-        window.localStorage.setItem("IDSP", rs.data.maCuaHang)
+        window.localStorage.setItem("IDS", rs.data.IDS)
+        window.localStorage.setItem("IDSP", rs.data.IDS)
         Navigate("/PageShop")
       }
     }).catch(err => {
@@ -76,7 +76,7 @@ export default function CreateShop() {
   };
 
   return (
-    <div class="flex items-center justify-center w-full h-full bg-gradient-cloud">
+    <div class="flex items-center justify-center w-full h-screen bg-gradient-cloud">
       <div className="w-[80%] flex bg-[rgba(242,244,255,0.65)] rounded-3xl p-5 shadow-default gap-4">
         <div className="w-[400px] h-[400px] flex justify-center items-center overflow-hidden rounded-full">
           <div>
