@@ -335,7 +335,8 @@ export default function PageShop() {
                     </div>
                     {isOwner ? (
                       <button
-                        onClick={() => {
+                        onClick={(e) => {
+                          e.stopPropagation();
                           setDeleteProduct({ id: p._id, name: p.tenSanPham });
                           setIsSubmit(true);
                         }}
