@@ -3,13 +3,12 @@ import React, { useState, useEffect, useRef } from "react";
 import { LazyLoadImage } from "react-lazy-load-image-component";
 import "react-lazy-load-image-component/src/effects/blur.css";
 import axios from "axios";
+import { useNavigate } from "react-router-dom";
 
 export default function Home() {
   const widthScreen = window.innerWidth;
   const [scrollPage, setScrollPage] = useState(0);
-  const [products, setProducts] = useState([]);
-  const [listID, setListID] = useState([]);
-  const [listIDSearch, setListIDSearch] = useState([]);
+  const [listProduct, setListProduct] = useState([]);
   const [valueSearch, setvalueSearch] = useState("");
   const scrollProduct = useRef(null);
 
@@ -49,6 +48,29 @@ export default function Home() {
     }
   };
 
+  const addToCart = (idp) => {
+    const id = window.localStorage.getItem("ID");
+    if (id) {
+      axios
+        .post("http://localhost:9000/GioHang/AddToCart", {
+          maKhachHang: id,
+          maSanPham: idp,
+        })
+        .then((rs) => {
+          if (rs.data.Status === "Success") {
+            Navigate("/Cart");
+          } else {
+            alert("Something Wrong");
+          }
+        })
+        .catch((err) => {
+          console.log(err);
+        });
+    } else {
+      Navigate("/SignIn");
+    }
+  };
+
   useEffect(() => {
     const interval = setInterval(() => {
       ChangeLastScroll();
@@ -56,70 +78,37 @@ export default function Home() {
     return () => clearInterval(interval);
   }, [scrollPage]);
 
-  const AddElement = async (Array) => {
-    const ProductList = [];
-    const promises = [];
-    for (let i = 0; i < Array.length; i++) {
-      promises.push(
-        axios
-          .post("http://localhost:9000/SanPham/Detail", {
-            maSanPham: Array[i].maSanPham,
-          })
-          .then((rs) => {
-            ProductList.push({
-              ImageP: rs.data.ImageValue,
-              TypeImage: rs.data.LoaiAnh,
-              NameP: rs.data.tenSanPham,
-              PriceP: rs.data.giaTien,
-              IdP: rs.data.maSanPham,
-            });
-          })
-      );
-    }
-    await Promise.all(promises);
-    setProducts([...ProductList]);
-  };
-
   const TakeList = () => {
-    axios.post("http://localhost:9000/SanPham/ListID").then((rs) => {
-      setListID(rs.data);
-    });
+    axios
+      .post("http://localhost:9000/SanPham/Products")
+      .then((rs) => {
+        setListProduct(rs.data);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
   };
 
   const TakeListSearch = () => {
     axios
       .post("http://localhost:9000/SanPham/Search", { Search: valueSearch })
       .then((rs) => {
-        setListIDSearch(rs.data);
+        setListProduct(rs.data);
       })
       .catch((err) => {
-        setProducts([]);
+        setListProduct([]);
       });
   };
 
-  useEffect(() => {
-    if (listID.length >= 0) {
-      AddElement(listID);
-    }
-  }, [listID]);
-
-  useEffect(() => {
-    if (listIDSearch.length >= 0) {
-      AddElement(listIDSearch);
-    }
-  }, [listIDSearch]);
+  const Navigate = useNavigate();
 
   useEffect(() => {
     if (valueSearch) {
       TakeListSearch();
     } else {
-      AddElement(listID);
+      TakeList();
     }
   }, [valueSearch]);
-
-  useEffect(() => {
-    TakeList();
-  }, []);
 
   return (
     <div className="flex flex-col overflow-hidden">
@@ -214,7 +203,7 @@ export default function Home() {
             onChange={ChangeInputSearch}
           ></input>
         </div>
-        {products.length === 0 ? (
+        {listProduct.length === 0 ? (
           <div className="flex flex-col gap-10 justify-center items-center w-full h-full">
             <div>
               <svg
@@ -236,9 +225,15 @@ export default function Home() {
             className="grid grid-cols-4 w-full p-7 h-full overflow-auto bg-white gap-[30px]"
             ref={scrollProduct}
           >
-            {products.map((p) => (
+            {listProduct.map((p) => (
               <div>
-                <button className="flex flex-col duration-200 w-[450px] ease-linear hover:text-[rgba(83,165,185,1)] hover:shadow-2xl">
+                <div
+                  onClick={() => {
+                    window.localStorage.setItem("IDPP", p._id);
+                    Navigate("/PageProduct");
+                  }}
+                  className="flex flex-col duration-200 w-[450px] ease-linear hover:text-[rgba(83,165,185,1)] hover:shadow-2xl cursor-pointer"
+                >
                   <div className="relative overflow-hidden w-[450px] h-[300px]">
                     <div className="absolute flex w-full h-full justify-center items-center">
                       <div>
@@ -246,27 +241,37 @@ export default function Home() {
                           className="h-[300px] w-[450px]"
                           effect="blur"
                           src={
-                            "data:image/" + p.TypeImage + ";base64," + p.ImageP
+                            "http://localhost:9000/Image/" +
+                            p.hinhAnh +
+                            "." +
+                            p.loaiAnh
                           }
-                          alt={p.IdP}
+                          alt={p.tenSanPham}
                         ></LazyLoadImage>
                       </div>
                     </div>
                   </div>
                   <div className="p-2">
-                    <p>{p.NameP}</p>
+                    <p>{p.tenSanPham}</p>
                   </div>
                   <div className="flex justify-between items-center w-full px-2 pb-2">
                     <div>
-                      <p>{Intl.NumberFormat().format(p.PriceP)} VND</p>
+                      <p>{Intl.NumberFormat().format(p.giaTien)} VND</p>
                     </div>
                     <div>
-                      <button className="bg-[rgba(83,165,185,1)] text-white p-2 border-[rgba(83,165,185,1)] border-[2px] duration-200 ease-linear hover:bg-white hover:text-[rgba(83,165,185,1)]">
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          addToCart(p._id);
+                        }}
+                        disabled={window.localStorage.getItem("IDS") === p.maCuaHang ? true : false}
+                        className={window.localStorage.getItem("IDS") === p.maCuaHang ? "text-white p-2 bg-slate-300" :"bg-[rgba(83,165,185,1)] text-white p-2 border-[rgba(83,165,185,1)] border-[2px] duration-200 ease-linear hover:bg-white hover:text-[rgba(83,165,185,1)]"}
+                      >
                         Thêm
                       </button>
                     </div>
                   </div>
-                </button>
+                </div>
               </div>
             ))}
           </div>

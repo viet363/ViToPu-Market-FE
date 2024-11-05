@@ -74,10 +74,20 @@ export default function SignUp() {
       alert("Mật khẩu không trùng nhau!");
     } else {
       const ngaySinh = new Date(ngay.nam, ngay.thang - 1, ngay.ngay);
+      const fd = new FormData();
+      fd.append("DataImage", selectedImage);
+      fd.append("hoVaTen", dataUser.hoVaTen);
+      fd.append("gioiTinh", dataUser.gioiTinh);
+      fd.append("diaChi", dataUser.diaChi);
+      fd.append("email", dataUser.email);
+      fd.append("matKhau", dataUser.matKhau);
+      fd.append("loaiAnh", dataUser.loaiAnh);
+      fd.append("ngaySinh", ngaySinh);
       axios
-        .post("http://localhost:9000/Client/SignUp", {
-          ...dataUser,
-          ngaySinh: ngaySinh,
+        .post("http://localhost:9000/Client/SignUp", fd, {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
         })
         .then((rs) => {
           if (rs.data.Status === "False") {
@@ -85,24 +95,8 @@ export default function SignUp() {
           } else if (rs.data.Status === "Not Found") {
             alert("Dịa chỉ Email này không tồn tại!");
           } else {
-            const formData = new FormData();
-            formData.append("DataImage", selectedImage);
-            formData.append("hinhAnh", rs.data.hinhAnh);
-            formData.append("loaiAnh", rs.data.loaiAnh);
-            formData.append("ID", rs.data.ID);
-            return axios
-              .post("http://localhost:9000/Client/SaveImage", formData, {
-                headers: {
-                  "Content-Type": "multipart/form-data",
-                },
-              })
-              .then((rs1) => {
-                window.localStorage.setItem("ID", rs1.data.ID);
-                Navigate("/");
-              })
-              .catch((err) => {
-                console.log(err);
-              });
+            window.localStorage.setItem("ID", rs.data.ID);
+            Navigate("/");
           }
         })
         .catch((err) => {
@@ -112,7 +106,11 @@ export default function SignUp() {
   };
 
   return (
-    <form onSubmit={handleCreateAccount} method="post" enctype="multipart/form-data">
+    <form
+      onSubmit={handleCreateAccount}
+      method="post"
+      enctype="multipart/form-data"
+    >
       <div class="flex flex-col items-center justify-center min-h-screen bg-cover bg-center">
         <div class="bg-[#253133] bg-opacity-70 rounded-lg p-8 w-[1150px] h-[700px] flex flex-col justify-center items-center ">
           <div class="text-center mb-8 ">
@@ -132,7 +130,7 @@ export default function SignUp() {
                 <div class=" overflow-hidden absolute bg-white w-[75px] h-[75px] rounded-full flex items-center justify-center right-[-10px] bottom-[-40px]">
                   <input
                     type="file"
-                    class="absolute  rounded-full opacity-0 cursor-pointer"
+                    class="absolute rounded-full opacity-0 cursor-pointer"
                     accept="image/*"
                     onChange={handleImageChange}
                     required
@@ -273,7 +271,7 @@ export default function SignUp() {
           <div class="text-center  w-[150px] mt-5  ">
             <button
               type="submit"
-              class="w-full bg-[#458FFF] text-white font-semibold py-2 rounded-3xl "
+              className="bg-[#458FFF] border-2 border-[#458FFF] text-[25px] text-white rounded-2xl px-3 py-1 duration-200 ease-linear hover:bg-white hover:text-[#458FFF]"
             >
               Xác nhận
             </button>
