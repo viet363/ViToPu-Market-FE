@@ -15,68 +15,12 @@ body {
   font-style: normal;
   font-size: 24px;
 }
-
-input[type="number"]::-webkit-outer-spin-button,
-input[type="number"]::-webkit-inner-spin-button {
-    -webkit-appearance: none;
-    margin: 0;
+.scrollbar-hidden::-webkit-scrollbar {
+  display: none;
 }
 
-input{
-  outline: none;
+.scrollbar-hidden {
+  -ms-overflow-style: none; 
+  scrollbar-width: none; 
 }
 
-::-webkit-scrollbar {
-  width: 0px;
-}
-
-
-.loader {
-  width: 80px;
-  height: 80px;
-  display: inline-block;
-  position: relative;
-  border: 2px solid #78ff8b;
-  box-sizing: border-box;
-  animation: rotation 2s linear infinite;
-}
-.loader::after,
-.loader::before {
-  content: '';  
-  box-sizing: border-box;
-  position: absolute;
-  left: 0;
-  right: 0;
-  top: 0;
-  bottom: 0;
-  margin: auto;
-  border: 2px solid #7ffffb;
-  width: 60px;
-  height: 60px;
-  animation: rotationBack 1.5s linear infinite;
-  transform-origin: center center;
-}
-.loader::before {
-  width: 40px;
-  height: 40px;
-  border-color: #7b8cff;
-  box-sizing: border-box;
-  animation: rotation 1s linear infinite;
-}
-
-@keyframes rotation {
-  0% {
-    transform: rotate(0deg);
-  }
-  100% {
-    transform: rotate(360deg);
-  }
-} 
-@keyframes rotationBack {
-  0% {
-    transform: rotate(0deg);
-  }
-  100% {
-    transform: rotate(-360deg);
-  }
-}
